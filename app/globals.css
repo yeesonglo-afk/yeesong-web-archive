@@ -573,8 +573,9 @@ img {
 }
 
 .metric p {
-  max-width: 160px;
+  max-width: none;
   margin: 0;
+  white-space: nowrap;
   font: 400 clamp(12px, 1.15vw, 16px) / 1.15 var(--serif);
 }
 
@@ -606,6 +607,14 @@ img {
   margin: 0;
   font: 400 clamp(54px, 7vw, 102px) / .8 var(--serif);
   letter-spacing: -.06em;
+}
+
+.projects-title span {
+  display: block;
+  margin-top: 26px;
+  color: rgba(247,241,231,.72);
+  font: 500 11px / 1 var(--sans);
+  letter-spacing: .12em;
 }
 
 .project-orbit {
@@ -761,7 +770,7 @@ img {
 
 .life-cover h2 {
   top: 42%;
-  font-size: clamp(78px, 10vw, 150px);
+  font-size: clamp(108px, 14vw, 210px);
 }
 
 .portrait-life {
@@ -878,24 +887,13 @@ img {
 .contact-copy {
   position: relative;
   z-index: 4;
-  width: 62%;
-  margin: 0 auto 0 calc(var(--rail-w) + 3%);
+  width: 58%;
+  margin: 0 auto 0 calc(var(--rail-w) + .5%);
   padding-top: 16vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
-
-.contact-copy h2 {
-  position: absolute;
-  top: 68vh;
-  left: 80%;
-  width: max-content;
-  margin: 0;
-  font: 400 clamp(25px, 3.2vw, 46px) / 1 var(--serif);
-  letter-spacing: 0;
-  transform: translateX(-50%);
 }
 
 .contact-line {
@@ -1178,7 +1176,6 @@ img {
 
   .contact { min-height: 900px; }
   .contact-copy { width: calc(100% - 32px); margin: 0 auto; padding-top: 95px; }
-  .contact-copy h2 { position: relative; top: auto; left: auto; width: auto; margin: 22px 0 8px; transform: none; }
   .contact-copy a { font-size: clamp(15px, 4.6vw, 22px); }
   .contact-line { gap: 7px; }
   .contact-copy strong { width: auto; margin: 0 0 8px; }

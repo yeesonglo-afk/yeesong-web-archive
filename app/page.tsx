@@ -317,6 +317,7 @@ export default function Home() {
             <div className="projects-sticky">
               <div className="projects-title">
                 <h3>Key Projects</h3>
+                {!projectSelected && <span>Click to Know Details</span>}
               </div>
 
               <div className="project-orbit">
@@ -384,11 +385,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact" className="contact section-cream">
+        <section id="contact" className="contact section-cream" aria-label="Contact">
           <img className="contact-robot" src="/portfolio/keynote-v2/contact-robot.png" alt="A robot reaching outward" />
           <img className="contact-angel" src="/portfolio/keynote-v2/contact-angel.png" alt="Yeesong reaching toward the robot" />
           <div className="contact-copy">
-            <h2>Contact</h2>
             <div className="contact-line">
               <a href="mailto:yeesonglo@gmail.com">Mail: yeesonglo@gmail.com</a>
               <button type="button" aria-label="Copy email address" onClick={() => copyContact("mail", "yeesonglo@gmail.com")}>
