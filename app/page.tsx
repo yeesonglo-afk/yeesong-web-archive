@@ -71,7 +71,7 @@ const projects: Project[] = [
 
 const traits = [
   "Global citizen",
-  "AI Native",
+  "AI native",
   "Fashion enthusiast",
   "Sustainability advocate",
   "Minimalist",

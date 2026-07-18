@@ -442,7 +442,7 @@ img {
   gap: 10px;
   align-items: baseline;
   padding: 7px 0;
-  border-bottom: 1px solid rgba(23,21,17,.15);
+  border-bottom: 0;
 }
 
 .traits-list span {
@@ -459,10 +459,10 @@ img {
 .traits-art {
   position: absolute;
   z-index: 2;
-  right: 1%;
-  bottom: -1%;
-  width: 68%;
-  height: 98%;
+  right: -1px;
+  bottom: 0;
+  width: 70%;
+  height: 100%;
 }
 
 .traits-art img {
@@ -692,7 +692,7 @@ img {
   z-index: 6;
   left: calc(50% + var(--rail-w) / 2);
   top: 61%;
-  width: min(720px, 45%);
+  width: min(660px, 36%);
   display: grid;
   grid-template-columns: 32px 1fr 32px;
   gap: 9px;
@@ -722,7 +722,7 @@ img {
 
 .project-inline-viewer img {
   width: 100%;
-  height: min(43vh, 430px);
+  height: min(39vh, 390px);
   object-fit: contain;
   background: #e7e2d8;
 }
@@ -753,6 +753,15 @@ img {
 
 .life-cover {
   background: var(--forest);
+}
+
+.life-cover > p {
+  top: 37%;
+}
+
+.life-cover h2 {
+  top: 42%;
+  font-size: clamp(78px, 10vw, 150px);
 }
 
 .portrait-life {
@@ -854,7 +863,7 @@ img {
 
 .contact-robot {
   z-index: 1;
-  left: calc(var(--rail-w) - 8%);
+  left: calc(var(--rail-w) - 4%);
   bottom: -4%;
   width: 82%;
 }
@@ -872,13 +881,21 @@ img {
   width: 62%;
   margin: 0 auto 0 calc(var(--rail-w) + 3%);
   padding-top: 16vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
 .contact-copy h2 {
-  margin: 0 0 14px;
-  font: 600 clamp(17px, 2vw, 30px) / 1.1 var(--serif);
+  position: absolute;
+  top: 68vh;
+  left: 80%;
+  width: max-content;
+  margin: 0;
+  font: 400 clamp(25px, 3.2vw, 46px) / 1 var(--serif);
   letter-spacing: 0;
+  transform: translateX(-50%);
 }
 
 .contact-line {
@@ -908,14 +925,13 @@ img {
 }
 
 .contact-copy strong {
-  position: absolute;
-  top: 68vh;
-  left: 80%;
+  position: static;
+  order: -1;
   display: block;
   width: max-content;
-  margin: 0;
-  font: 400 clamp(25px, 3.2vw, 46px) / 1 var(--serif);
-  transform: translateX(-50%);
+  margin: 0 0 14px;
+  font: 600 clamp(17px, 2vw, 30px) / 1.1 var(--serif);
+  transform: none;
 }
 
 .closing-mark {
@@ -1162,9 +1178,10 @@ img {
 
   .contact { min-height: 900px; }
   .contact-copy { width: calc(100% - 32px); margin: 0 auto; padding-top: 95px; }
+  .contact-copy h2 { position: relative; top: auto; left: auto; width: auto; margin: 22px 0 8px; transform: none; }
   .contact-copy a { font-size: clamp(15px, 4.6vw, 22px); }
   .contact-line { gap: 7px; }
-  .contact-copy strong { position: relative; top: auto; left: auto; width: auto; margin-top: 36vh; transform: none; }
+  .contact-copy strong { width: auto; margin: 0 0 8px; }
   .contact-robot { left: -29%; bottom: 0; width: 105%; }
   .contact-angel { top: 39%; right: -38%; width: 104%; }
 }
