@@ -19,12 +19,17 @@ test("server-renders the portfolio", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Yisong \(Yeesong\) Luo — Portfolio<\/title>/i);
+  assert.match(html, /<title>Yeesong \(Yisong Luo\) — Portfolio<\/title>/i);
   assert.match(html, /aria-label="Portfolio navigation"/);
   assert.match(html, /src="\/portfolio\/keynote\/hero\.jpg"/);
+  assert.match(html, /src="\/portfolio\/keynote-v2\/about\.png"/);
+  assert.match(html, /src="\/portfolio\/keynote-v2\/work\.png"/);
+  assert.match(html, /src="\/portfolio\/keynote-v2\/life\.png"/);
   assert.match(html, />About Me</);
   assert.match(html, />Key Projects</);
   assert.match(html, />Life</);
   assert.match(html, /mailto:yeesonglo@gmail\.com/);
+  assert.match(html, /linkedin\.com\/in\/yeesong/);
+  assert.doesNotMatch(html, /role="dialog"/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

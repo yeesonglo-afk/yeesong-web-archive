@@ -108,8 +108,26 @@ export default function Home() {
   const [active, setActive] = useState("hero");
   const [menuOpen, setMenuOpen] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [openProject, setOpenProject] = useState<Project | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState(projects[0].id);
+  const [projectImageIndex, setProjectImageIndex] = useState(0);
+  const [projectSelected, setProjectSelected] = useState(false);
   const flashReady = useRef(true);
+  const flashTimer = useRef<number | null>(null);
+
+  const selectedProject = useMemo(
+    () => projects.find((project) => project.id === selectedProjectId) ?? projects[0],
+    [selectedProjectId],
+  );
+  const currentIndex = useMemo(() => navItems.findIndex((item) => item[2] === active), [active]);
+
+  const triggerFlash = () => {
+    if (!flashReady.current) return;
+    flashReady.current = false;
+    setFlash(false);
+    window.requestAnimationFrame(() => setFlash(true));
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setFlash(false), 1080);
+  };
 
   useEffect(() => {
     const sections = ["hero", "about", "work", "life", "contact"]
@@ -120,55 +138,59 @@ export default function Home() {
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty("--scroll-y", String(window.scrollY));
+        const scrollY = window.scrollY;
+        document.documentElement.style.setProperty("--scroll-y", String(scrollY));
         const viewportAnchor = window.innerHeight * 0.42;
         const currentSection = sections.reduce(
-          (current, section) =>
-            section.getBoundingClientRect().top <= viewportAnchor ? section.id : current,
+          (current, section) => (section.getBoundingClientRect().top <= viewportAnchor ? section.id : current),
           "hero",
         );
         setActive((current) => (current === currentSection ? current : currentSection));
-        const about = document.getElementById("about")?.getBoundingClientRect();
-        if (about && about.top < 90 && about.top > -120 && flashReady.current) {
-          flashReady.current = false;
-          setFlash(true);
-          window.setTimeout(() => setFlash(false), 760);
-        }
-        if (about && (about.top > 260 || about.top < -500)) flashReady.current = true;
+
+        if (scrollY > 28 && scrollY < window.innerHeight * 0.82 && flashReady.current) triggerFlash();
+        if (scrollY < 8) flashReady.current = true;
         raf = 0;
       });
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
     };
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = openProject ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [openProject]);
-
-  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenProject(null);
-        setMenuOpen(false);
-      }
+      if (event.key === "Escape") setMenuOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const currentIndex = useMemo(() => navItems.findIndex((item) => item[2] === active), [active]);
-
   const goTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (id === "about" && window.scrollY < window.innerHeight * 0.6) {
+      triggerFlash();
+      window.setTimeout(scroll, 260);
+    } else {
+      scroll();
+    }
     setMenuOpen(false);
+  };
+
+  const chooseProject = (project: Project) => {
+    setSelectedProjectId(project.id);
+    setProjectImageIndex(0);
+    setProjectSelected(true);
+  };
+
+  const changeProjectImage = (direction: number) => {
+    setProjectImageIndex((current) =>
+      (current + direction + selectedProject.images.length) % selectedProject.images.length,
+    );
   };
 
   return (
@@ -176,7 +198,7 @@ export default function Home() {
       <div className={`camera-flash ${flash ? "is-active" : ""}`} aria-hidden="true" />
 
       <button
-        className="mobile-menu-button"
+        className={`mobile-menu-button mobile-${active}`}
         type="button"
         aria-label="Open navigation"
         aria-expanded={menuOpen}
@@ -186,7 +208,7 @@ export default function Home() {
         <span>{menuOpen ? "Close" : "Index"}</span>
       </button>
 
-      <div className={`mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
+      <div className={`mobile-menu mobile-${active} ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         {navItems.map(([roman, label, id]) => (
           <button key={id} type="button" onClick={() => goTo(id)}>
             <span>{roman}</span>
@@ -199,8 +221,8 @@ export default function Home() {
         <button className="monogram" type="button" onClick={() => goTo("hero")} aria-label="Back to top">
           <span>Who</span>
           <span>Is</span>
-          <strong>Yisong</strong>
-          <em>(Yeesong) Luo</em>
+          <strong>Yeesong</strong>
+          <em>(Yisong Luo)</em>
         </button>
         <nav>
           {navItems.map(([roman, label, id], index) => (
@@ -224,7 +246,7 @@ export default function Home() {
 
       <div className="content-shell">
         <section id="hero" className="hero section-dark">
-          <img src="/portfolio/keynote/hero.jpg" alt="Yisong reimagined inside a Renaissance seascape" />
+          <img src="/portfolio/keynote/hero.jpg" alt="Yeesong inside a Renaissance seascape" />
           <div className="hero-shade" />
           <button className="scroll-cue" type="button" onClick={() => goTo("about")}>
             <span>Scroll to enter</span>
@@ -234,23 +256,22 @@ export default function Home() {
         </section>
 
         <section id="about" className="about section-cream">
-          <div className="chapter-cover">
-            <div className="chapter-number">I</div>
+          <div className="chapter-cover about-cover">
             <p>Portrait of a many-sided mind</p>
             <h2>About Me</h2>
             <div className="framed-portrait portrait-headphones">
-              <img src="/portfolio/keynote/about-intro.jpg" alt="Renaissance portrait with headphones" />
+              <img src="/portfolio/keynote-v2/about.png" alt="Yeesong wearing headphones with moth and botanical details" />
             </div>
           </div>
 
-          <div className="traits-stage">
+          <div id="traits" className="traits-stage">
             <div className="traits-sticky">
-              <div className="traits-art" aria-hidden="true">
-                <img src="/portfolio/keynote/about-traits.jpg" alt="" />
+              <div className="traits-art">
+                <img src="/portfolio/keynote-v2/traits.png" alt="Yeesong working on a laptop" />
               </div>
               <div className="traits-heading">
                 <p>Not one label. A constellation.</p>
-                <h3>Who I am, in motion</h3>
+                <h3>Who I am,<br />in motion</h3>
               </div>
               <div className="traits-list">
                 {traits.map((trait, index) => (
@@ -266,51 +287,50 @@ export default function Home() {
 
         <section id="work" className="work section-ink">
           <div className="chapter-cover work-cover">
-            <div className="chapter-number">II</div>
             <p>Built through work. Defined by impact.</p>
             <h2>Work</h2>
             <div className="framed-portrait portrait-work">
-              <img src="/portfolio/keynote/work-intro.jpg" alt="Yisong reimagined as a modern Mona Lisa holding a tablet" />
+              <img src="/portfolio/keynote-v2/work.png" alt="Yeesong reimagined as a modern Mona Lisa holding a tablet" />
             </div>
           </div>
 
-          <div className="impact-grid-wrap">
-            <div className="impact-intro">
-              <p className="eyebrow">Measured outcomes</p>
-              <h3>
-                Work that leaves
-                <br />
-                a visible trace.
-              </h3>
-              <div className="impact-art">
-                <img src="/portfolio/keynote/work-impact.jpg" alt="Renaissance-inspired editorial portrait" />
+          <div id="impact" className="impact-grid-wrap">
+            <div className="impact-sticky">
+              <div className="impact-intro">
+                <p className="eyebrow">Measured outcomes</p>
+                <h3>Built Through<br />Work,<br />Defined by<br />Impact</h3>
+                <div className="impact-art">
+                  <img src="/portfolio/keynote-v2/impact.png" alt="Yeesong reimagined as the Girl with a Pearl Earring holding a magazine" />
+                </div>
+              </div>
+              <div className="impact-grid">
+                {metrics.map(([value, label], index) => (
+                  <article key={label} className={`metric metric-${index + 1}`}>
+                    <strong>{value}</strong>
+                    <p>{label}</p>
+                  </article>
+                ))}
               </div>
             </div>
-            <div className="impact-grid">
-              {metrics.map(([value, label], index) => (
-                <article key={label} className={`metric metric-${index + 1}`}>
-                  <strong>{value}</strong>
-                  <p>{label}</p>
-                </article>
-              ))}
-            </div>
           </div>
 
-          <div className="projects-stage">
+          <div id="projects" className="projects-stage">
             <div className="projects-sticky">
               <div className="projects-title">
                 <p>Selected constellation</p>
                 <h3>Key Projects</h3>
-                <span>Choose a work to open its folio.</span>
+                <span>Select a project, then browse its images in place.</span>
               </div>
+
               <div className="project-orbit">
                 {projects.map((project, index) => (
                   <button
                     key={project.id}
                     type="button"
-                    className={`project-card project-card-${index + 1}`}
-                    onClick={() => setOpenProject(project)}
-                    aria-label={`Open ${project.title}`}
+                    className={`project-card project-card-${index + 1} ${projectSelected && selectedProject.id === project.id ? "is-selected" : ""}`}
+                    onClick={() => chooseProject(project)}
+                    aria-pressed={projectSelected && selectedProject.id === project.id}
+                    aria-label={`Select ${project.title}`}
                   >
                     <img src={project.cover} alt="" />
                     <span>{project.index}</span>
@@ -321,73 +341,67 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+
+              {projectSelected && (
+                <div className="project-inline-viewer" aria-live="polite">
+                  <button type="button" onClick={() => changeProjectImage(-1)} aria-label="Previous project image">←</button>
+                  <figure>
+                    <img
+                      src={selectedProject.images[projectImageIndex]}
+                      alt={`${selectedProject.title} image ${projectImageIndex + 1}`}
+                    />
+                    <figcaption>
+                      <span>{selectedProject.index} · {selectedProject.tone}</span>
+                      <strong>{selectedProject.title}</strong>
+                      <em>{String(projectImageIndex + 1).padStart(2, "0")} / {String(selectedProject.images.length).padStart(2, "0")}</em>
+                    </figcaption>
+                  </figure>
+                  <button type="button" onClick={() => changeProjectImage(1)} aria-label="Next project image">→</button>
+                </div>
+              )}
             </div>
           </div>
         </section>
 
         <section id="life" className="life section-forest">
           <div className="chapter-cover life-cover">
-            <div className="chapter-number">III</div>
             <p>A life gathered in fragments</p>
             <h2>Life</h2>
             <div className="framed-portrait portrait-life">
-              <img src="/portfolio/keynote/life-intro.jpg" alt="Renaissance-inspired portrait behind a table of small treasures" />
+              <img src="/portfolio/keynote-v2/life.png" alt="Yeesong behind a table of flowers, bottles and a radio" />
             </div>
           </div>
-          <div className="life-intro-copy">
-            <p className="eyebrow">Elsewhere, always</p>
-            <h3>People, places, rituals, movement.</h3>
-            <p>Small evidence of a world explored with attention.</p>
-          </div>
-          <div className="life-mosaic">
-            {lifeImages.map((src, index) => (
-              <figure key={src} className={`life-tile life-tile-${(index % 7) + 1}`}>
-                <img src={src} alt={`Life moment ${index + 1}`} loading="lazy" />
-                <figcaption>{String(index + 1).padStart(2, "0")}</figcaption>
-              </figure>
-            ))}
+
+          <div id="life-gallery" className="life-gallery-stage">
+            <div className="life-center-copy">
+              <p className="eyebrow">Elsewhere, always</p>
+              <h3>People, Places,<br />Rituals, Movement.</h3>
+              <p>Small evidence of a world explored with attention.</p>
+            </div>
+            <div className="life-orbit">
+              {lifeImages.map((src, index) => (
+                <figure key={src} className={`life-tile life-tile-${(index % 7) + 1}`}>
+                  <img src={src} alt={`Life moment ${index + 1}`} loading="lazy" />
+                  <figcaption>{String(index + 1).padStart(2, "0")}</figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
         </section>
 
         <section id="contact" className="contact section-cream">
-          <div className="contact-art">
-            <img src="/portfolio/keynote/contact.jpg" alt="A human and a robot reaching toward each other" />
-          </div>
+          <img className="contact-robot" src="/portfolio/keynote-v2/contact-robot.png" alt="A robot reaching outward" />
+          <img className="contact-angel" src="/portfolio/keynote-v2/contact-angel.png" alt="Yeesong reaching toward the robot" />
           <div className="contact-copy">
             <p className="eyebrow">IV · Contact</p>
-            <h2>Let’s make<br />the next thing<br /><em>matter.</em></h2>
-            <a href="mailto:yeesonglo@gmail.com">yeesonglo@gmail.com</a>
-            <div className="contact-meta">
-              <span>LinkedIn · available on request</span>
-              <span>Shanghai · open to the world</span>
-            </div>
+            <h2>Contact</h2>
+            <a href="mailto:yeesonglo@gmail.com">Mail: yeesonglo@gmail.com</a>
+            <a href="https://www.linkedin.com/in/yeesong" target="_blank" rel="noreferrer">LinkedIn: linkedin.com/in/yeesong</a>
+            <strong>Open To The World</strong>
           </div>
           <div className="closing-mark">YL</div>
         </section>
       </div>
-
-      {openProject && (
-        <div className="project-modal" role="dialog" aria-modal="true" aria-label={openProject.title}>
-          <div className="project-modal-head">
-            <div>
-              <span>{openProject.index} · {openProject.tone}</span>
-              <h2>{openProject.title}</h2>
-              <p>{openProject.subtitle}</p>
-            </div>
-            <button type="button" onClick={() => setOpenProject(null)} aria-label="Close project">
-              Close <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <div className="project-gallery">
-            {openProject.images.map((src, index) => (
-              <figure key={src}>
-                <img src={src} alt={`${openProject.title} documentation ${index + 1}`} />
-                <figcaption>{openProject.index}.{String(index + 1).padStart(2, "0")}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      )}
     </main>
   );
 }

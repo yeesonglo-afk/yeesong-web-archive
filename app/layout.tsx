@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Yisong (Yeesong) Luo — Portfolio",
+  title: "Yeesong (Yisong Luo) — Portfolio",
   description: "Strategy, creative technology, fashion, sustainability and the work between worlds.",
 };
 
