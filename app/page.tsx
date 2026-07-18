@@ -26,7 +26,7 @@ const projects: Project[] = [
     id: "pr-bd",
     index: "02",
     title: "PR & BD",
-    subtitle: "Cultural reach, partnerships and momentum",
+    subtitle: "KOL Collaboration",
     cover: "/portfolio/projects/PR-BD/08.jpg",
     images: [6, 7, 8, 9, 10].map((n) => `/portfolio/projects/PR-BD/${String(n).padStart(2, "0")}.jpg`),
     tone: "Vermilion",
@@ -53,7 +53,7 @@ const projects: Project[] = [
     id: "project-management",
     index: "05",
     title: "Project Management",
-    subtitle: "Offline & online shows",
+    subtitle: "Offline & Online Show",
     cover: "/portfolio/projects/Project-Management/16.jpg",
     images: [11, 12, 13, 14, 15, 16, 17].map((n) => `/portfolio/projects/Project-Management/${n}.jpg`),
     tone: "Nocturne",
@@ -111,6 +111,7 @@ export default function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0].id);
   const [projectImageIndex, setProjectImageIndex] = useState(0);
   const [projectSelected, setProjectSelected] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const flashReady = useRef(true);
   const flashTimer = useRef<number | null>(null);
 
@@ -193,6 +194,12 @@ export default function Home() {
     );
   };
 
+  const copyContact = async (label: string, value: string) => {
+    await navigator.clipboard.writeText(value);
+    setCopied(label);
+    window.setTimeout(() => setCopied((current) => (current === label ? null : current)), 1600);
+  };
+
   return (
     <main>
       <div className={`camera-flash ${flash ? "is-active" : ""}`} aria-hidden="true" />
@@ -238,10 +245,6 @@ export default function Home() {
             </button>
           ))}
         </nav>
-        <div className="rail-footer">
-          <span>Shanghai · Global</span>
-          <span>Portfolio MMXXVI</span>
-        </div>
       </aside>
 
       <div className="content-shell">
@@ -268,10 +271,6 @@ export default function Home() {
             <div className="traits-sticky">
               <div className="traits-art">
                 <img src="/portfolio/keynote-v2/traits.png" alt="Yeesong working on a laptop" />
-              </div>
-              <div className="traits-heading">
-                <p>Not one label. A constellation.</p>
-                <h3>Who I am,<br />in motion</h3>
               </div>
               <div className="traits-list">
                 {traits.map((trait, index) => (
@@ -317,9 +316,7 @@ export default function Home() {
           <div id="projects" className="projects-stage">
             <div className="projects-sticky">
               <div className="projects-title">
-                <p>Selected constellation</p>
                 <h3>Key Projects</h3>
-                <span>Select a project, then browse its images in place.</span>
               </div>
 
               <div className="project-orbit">
@@ -374,9 +371,7 @@ export default function Home() {
 
           <div id="life-gallery" className="life-gallery-stage">
             <div className="life-center-copy">
-              <p className="eyebrow">Elsewhere, always</p>
               <h3>People, Places,<br />Rituals, Movement.</h3>
-              <p>Small evidence of a world explored with attention.</p>
             </div>
             <div className="life-orbit">
               {lifeImages.map((src, index) => (
@@ -393,10 +388,19 @@ export default function Home() {
           <img className="contact-robot" src="/portfolio/keynote-v2/contact-robot.png" alt="A robot reaching outward" />
           <img className="contact-angel" src="/portfolio/keynote-v2/contact-angel.png" alt="Yeesong reaching toward the robot" />
           <div className="contact-copy">
-            <p className="eyebrow">IV · Contact</p>
             <h2>Contact</h2>
-            <a href="mailto:yeesonglo@gmail.com">Mail: yeesonglo@gmail.com</a>
-            <a href="https://www.linkedin.com/in/yeesong" target="_blank" rel="noreferrer">LinkedIn: linkedin.com/in/yeesong</a>
+            <div className="contact-line">
+              <a href="mailto:yeesonglo@gmail.com">Mail: yeesonglo@gmail.com</a>
+              <button type="button" aria-label="Copy email address" onClick={() => copyContact("mail", "yeesonglo@gmail.com")}>
+                {copied === "mail" ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <div className="contact-line">
+              <a href="https://www.linkedin.com/in/yeesong" target="_blank" rel="noreferrer">LinkedIn: linkedin.com/in/yeesong</a>
+              <button type="button" aria-label="Copy LinkedIn address" onClick={() => copyContact("linkedin", "https://www.linkedin.com/in/yeesong")}>
+                {copied === "linkedin" ? "Copied" : "Copy"}
+              </button>
+            </div>
             <strong>Open To The World</strong>
           </div>
           <div className="closing-mark">YL</div>
